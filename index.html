@@ -3,367 +3,391 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Player</title>
-
-  <!-- OpenPlayerJS -->
+  <title>Stream Player</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/openplayerjs/2.9.2/openplayer.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/openplayerjs/2.9.2/openplayer.min.js"></script>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;800&family=DM+Mono:wght@300;400&display=swap');
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:       #080a0f;
-      --surface:  #0e1117;
-      --border:   #1c2030;
-      --accent:   #3b82f6;
-      --accent2:  #06b6d4;
-      --text:     #e2e8f0;
-      --muted:    #64748b;
-      --glow:     rgba(59,130,246,0.15);
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #272727;
+      --border: #3d3d3d;
+      --text: #f1f1f1;
+      --text2: #aaaaaa;
+      --red: #ff0000;
+      --red-hover: #cc0000;
     }
 
     html, body {
-      height: 100%;
+      min-height: 100vh;
       background: var(--bg);
       color: var(--text);
-      font-family: 'Syne', sans-serif;
-      overflow-x: hidden;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
     }
 
-    /* animated background grid */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--border) 1px, transparent 1px);
-      background-size: 48px 48px;
-      opacity: 0.4;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* radial gradient spotlight */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .wrap {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
+    /* ── TOP NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid #222;
+      height: 56px;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      padding: 32px 16px 48px;
+      justify-content: space-between;
+      padding: 0 16px;
+      gap: 16px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .nav-logo svg { width: 90px; height: 20px; }
+
+    .nav-search {
+      display: flex;
+      flex: 1;
+      max-width: 600px;
+      height: 36px;
+    }
+
+    .nav-search input {
+      flex: 1;
+      background: #121212;
+      border: 1px solid var(--border);
+      border-right: none;
+      border-radius: 40px 0 0 40px;
+      padding: 0 16px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: 'Roboto', sans-serif;
+      outline: none;
+    }
+
+    .nav-search input:focus {
+      border-color: #1c62b9;
+      background: var(--bg);
+    }
+
+    .nav-search input::placeholder { color: var(--text2); }
+
+    .nav-search button {
+      width: 64px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 0 40px 40px 0;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .nav-search button:hover { background: #3d3d3d; }
+
+    .nav-search button svg { width: 20px; height: 20px; fill: var(--text); }
+
+    /* ── LAYOUT ── */
+    .page {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 24px;
+      display: grid;
+      grid-template-columns: 1fr 402px;
       gap: 24px;
     }
 
-    /* ---- header ---- */
-    header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      animation: fadeDown 0.5s ease both;
+    @media (max-width: 1000px) {
+      .page { grid-template-columns: 1fr; padding: 12px; }
+      .sidebar { display: none; }
     }
 
-    .logo-mark {
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px var(--glow);
-    }
+    /* ── VIDEO COLUMN ── */
+    .video-col {}
 
-    .logo-mark svg {
-      width: 18px;
-      height: 18px;
-      fill: white;
-    }
-
-    header h1 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: linear-gradient(90deg, var(--text), var(--muted));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    /* ---- input area (shown when no URL param) ---- */
-    .input-card {
+    /* player shell */
+    .player-shell {
       width: 100%;
-      max-width: 640px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* LANDING: no URL */
+    .paste-box {
+      aspect-ratio: 16/9;
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      animation: fadeUp 0.5s 0.1s ease both;
-      box-shadow: 0 0 40px rgba(0,0,0,0.4);
-    }
-
-    .input-card label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    .input-row {
-      display: flex;
-      gap: 10px;
-    }
-
-    .input-row input {
-      flex: 1;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.85rem;
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .input-row input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--glow);
-    }
-
-    .input-row input::placeholder { color: var(--muted); }
-
-    .btn {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border: none;
-      border-radius: 10px;
-      padding: 12px 20px;
-      color: white;
-      font-family: 'Syne', sans-serif;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
-      white-space: nowrap;
-    }
-
-    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-
-    /* ---- player container ---- */
-    .player-wrap {
-      width: 100%;
-      max-width: 960px;
-      animation: fadeUp 0.5s 0.05s ease both;
-    }
-
-    .player-shell {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
-    }
-
-    /* file info bar */
-    .file-info {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
-
-    .file-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: var(--glow);
-      border: 1px solid rgba(59,130,246,0.3);
-      display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      gap: 16px;
+      background: #000;
+      border-radius: 12px;
     }
 
-    .file-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 2; }
+    .paste-box svg { width: 64px; height: 64px; fill: #555; }
 
-    .file-name {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.8rem;
-      color: var(--text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    .paste-box p {
+      color: var(--text2);
+      font-size: 15px;
+    }
+
+    .paste-input-row {
+      display: flex;
+      width: 100%;
+      max-width: 520px;
+      gap: 0;
+    }
+
+    .paste-input-row input {
       flex: 1;
-      min-width: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-right: none;
+      border-radius: 4px 0 0 4px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      outline: none;
     }
 
-    .file-badge {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.65rem;
-      font-weight: 400;
-      color: var(--accent2);
-      background: rgba(6,182,212,0.1);
-      border: 1px solid rgba(6,182,212,0.2);
-      border-radius: 6px;
-      padding: 3px 8px;
-      flex-shrink: 0;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+    .paste-input-row input:focus { border-color: #3ea6ff; }
+    .paste-input-row input::placeholder { color: #666; }
+
+    .paste-input-row button {
+      background: #3ea6ff;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      padding: 0 20px;
+      color: #0f0f0f;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      font-family: 'Roboto', sans-serif;
+      white-space: nowrap;
+      transition: background 0.15s;
     }
+
+    .paste-input-row button:hover { background: #65b8ff; }
 
     /* video element */
     #media-player {
       width: 100%;
       display: block;
+      max-height: 70vh;
+      background: #000;
     }
 
-    /* override openplayer theme to match dark UI */
-    .op-player__media { background: #000; }
-    .op-controls { background: linear-gradient(transparent, rgba(0,0,0,0.85)) !important; }
-    .op-controls__progress-played { background: var(--accent) !important; }
-    .op-controls__progress-buffered { background: rgba(59,130,246,0.3) !important; }
+    /* OpenPlayer overrides */
+    .op-player { background: #000 !important; }
+    .op-controls { background: linear-gradient(transparent, rgba(0,0,0,0.9)) !important; padding-bottom: 8px !important; }
+    .op-controls__progress-played { background: var(--red) !important; }
+    .op-controls__progress-thumb { background: var(--red) !important; }
+    .op-controls__progress-buffered { background: rgba(255,255,255,0.2) !important; }
 
-    /* download bar */
-    .dl-bar {
-      padding: 14px 20px;
-      border-top: 1px solid var(--border);
+    /* ── VIDEO INFO ── */
+    .video-info { padding: 12px 0 0; }
+
+    .video-title {
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text);
+      margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .video-meta-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #3d3d3d;
+    }
+
+    .video-views {
+      color: var(--text2);
+      font-size: 14px;
+    }
+
+    .action-btns {
+      display: flex;
+      gap: 8px;
       flex-wrap: wrap;
     }
 
-    .dl-label {
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: none;
+      border-radius: 18px;
+      padding: 8px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Roboto', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+    }
+
+    .action-btn:hover { background: #3d3d3d; }
+    .action-btn svg { width: 18px; height: 18px; fill: var(--text); flex-shrink: 0; }
+
+    .action-btn.red {
+      background: var(--red);
+      color: #fff;
+    }
+    .action-btn.red:hover { background: var(--red-hover); }
+    .action-btn.red svg { fill: #fff; }
+
+    .action-btn.copied {
+      background: #2a9d3e;
+      color: #fff;
+    }
+
+    /* channel row */
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #3d3d3d;
+    }
+
+    .channel-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
       flex-shrink: 0;
     }
 
-    .dl-link {
-      font-family: 'DM Mono', monospace;
-      font-size: 0.75rem;
-      color: var(--accent2);
-      text-decoration: none;
-      background: rgba(6,182,212,0.08);
-      border: 1px solid rgba(6,182,212,0.2);
-      border-radius: 8px;
-      padding: 6px 12px;
-      transition: background 0.2s, border-color 0.2s;
+    .channel-name {
+      font-weight: 500;
+      font-size: 15px;
+    }
+
+    .channel-subs {
+      color: var(--text2);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    /* description box */
+    .desc-box {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text2);
       word-break: break-all;
     }
 
-    .dl-link:hover {
-      background: rgba(6,182,212,0.16);
-      border-color: rgba(6,182,212,0.4);
+    .desc-box .desc-url {
+      color: #3ea6ff;
+      font-size: 12px;
+      font-family: monospace;
     }
 
-    .copy-btn {
-      margin-left: auto;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 12px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      flex-shrink: 0;
+    /* ── SIDEBAR ── */
+    .sidebar {}
+
+    .sidebar-title {
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 12px;
+      color: var(--text2);
     }
 
-    .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .copy-btn.copied { border-color: #22c55e; color: #22c55e; }
-
-    /* ---- error state ---- */
-    .error-card {
-      width: 100%;
-      max-width: 520px;
-      background: rgba(239,68,68,0.05);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 16px;
-      padding: 24px;
-      text-align: center;
-      animation: fadeUp 0.4s ease both;
+    .tip-card {
+      background: var(--surface2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
     }
 
-    .error-card h2 { font-size: 1rem; color: #f87171; margin-bottom: 8px; }
-    .error-card p  { font-size: 0.85rem; color: var(--muted); }
+    .tip-card strong { color: var(--text); display: block; margin-bottom: 4px; }
 
-    /* ---- empty state ---- */
-    .empty {
-      text-align: center;
-      color: var(--muted);
-      font-size: 0.85rem;
-      animation: fadeUp 0.5s 0.2s ease both;
-      opacity: 0;
-      animation-fill-mode: forwards;
-    }
-
-    .empty p { margin-top: 8px; font-family: 'DM Mono', monospace; font-size: 0.75rem; }
-
-    /* ---- animations ---- */
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-12px); }
+    /* ── ANIMATIONS ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .fadein { animation: fadeIn 0.3s ease both; }
 
-    /* ---- responsive ---- */
-    @media (max-width: 480px) {
-      .input-row { flex-direction: column; }
-      .dl-bar { flex-direction: column; align-items: flex-start; }
-      .copy-btn { margin-left: 0; }
+    /* ── MOBILE ── */
+    @media (max-width: 600px) {
+      nav { padding: 0 8px; }
+      .nav-search { max-width: unset; }
+      .page { padding: 0; gap: 0; }
+      .player-shell { border-radius: 0; }
+      .video-info { padding: 12px; }
     }
   </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- Header -->
-  <header>
-    <div class="logo-mark">
-      <svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg>
-    </div>
-    <h1>Stream Player</h1>
-  </header>
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/" title="Stream Player">
+    <!-- YouTube-style wordmark SVG -->
+    <svg viewBox="0 0 90 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="2" width="28" height="16" rx="4" fill="#FF0000"/>
+      <polygon points="11,6 11,14 19,10" fill="white"/>
+      <text x="32" y="15" font-family="Roboto,sans-serif" font-weight="700" font-size="13" fill="#f1f1f1">StreamPlay</text>
+    </svg>
+  </a>
 
-  <!-- Dynamic content injected here -->
-  <div id="app"></div>
+  <div class="nav-search">
+    <input id="nav-input" type="url" placeholder="Paste a direct media URL…" autocomplete="off" spellcheck="false" />
+    <button id="nav-play-btn" title="Play">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </button>
+  </div>
+</nav>
 
+<!-- PAGE -->
+<div class="page" id="page">
+  <!-- filled by JS -->
 </div>
 
 <script>
 (function () {
-  const app = document.getElementById('app');
+  const page = document.getElementById('page');
+  const navInput = document.getElementById('nav-input');
+  const navBtn   = document.getElementById('nav-play-btn');
 
   // ── helpers ──────────────────────────────────────────────
   function getParam(name) {
@@ -372,164 +396,193 @@
 
   function fileName(url) {
     try {
-      const parts = new URL(url).pathname.split('/');
-      const raw   = decodeURIComponent(parts[parts.length - 1] || '');
-      return raw || 'media';
+      const parts = decodeURIComponent(new URL(url).pathname).split('/');
+      return parts[parts.length - 1] || 'media';
     } catch { return 'media'; }
   }
 
   function fileExt(url) {
-    const name = fileName(url);
-    const dot  = name.lastIndexOf('.');
-    return dot !== -1 ? name.slice(dot + 1).toLowerCase() : '';
+    const n   = fileName(url);
+    const dot = n.lastIndexOf('.');
+    return dot !== -1 ? n.slice(dot + 1).toLowerCase() : '';
   }
 
   function isAudio(url) {
     return ['mp3','aac','ogg','flac','wav','opus','m4a'].includes(fileExt(url));
   }
 
-  function copyText(text, btn) {
-    navigator.clipboard.writeText(text).then(() => {
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
-    });
+  function stripExt(name) {
+    const dot = name.lastIndexOf('.');
+    return dot !== -1 ? name.slice(0, dot) : name;
   }
 
-  // ── render input form ─────────────────────────────────────
-  function renderForm() {
-    app.innerHTML = `
-      <div class="input-card">
-        <label>Paste a direct media URL to stream</label>
-        <div class="input-row">
-          <input id="url-input" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" spellcheck="false" />
-          <button class="btn" id="play-btn">▶ Play</button>
+  function navigate(url) {
+    const u = new URL(window.location.href);
+    u.searchParams.set('url', url);
+    window.location.href = u.toString();
+  }
+
+  // nav bar play
+  navBtn.addEventListener('click', () => {
+    const v = navInput.value.trim();
+    if (v) navigate(v);
+    else navInput.focus();
+  });
+  navInput.addEventListener('keydown', e => { if (e.key === 'Enter') navBtn.click(); });
+
+  // ── LANDING page ────────────────────────────────────────
+  function renderLanding() {
+    page.innerHTML = `
+      <div style="grid-column:1/-1" class="fadein">
+        <div class="paste-box">
+          <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 8l-5 3V8l5 3zm5 3l-5-3 5-3v6z"/></svg>
+          <p>Paste a direct media link above and press ▶ to stream</p>
+          <div class="paste-input-row">
+            <input id="lp-input" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" spellcheck="false"/>
+            <button id="lp-btn">▶ Play</button>
+          </div>
         </div>
       </div>
-      <div class="empty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="margin:0 auto 12px;display:block;opacity:0.3">
-          <circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/>
-        </svg>
-        <p>Supports MP4 · MKV · WebM · MP3 · AAC · M3U8 · and more</p>
-      </div>
     `;
-
-    const input = document.getElementById('url-input');
-    const btn   = document.getElementById('play-btn');
-
-    btn.addEventListener('click', () => {
-      const val = input.value.trim();
-      if (!val) { input.focus(); return; }
-      // push to query param and reload
-      const u = new URL(window.location.href);
-      u.searchParams.set('url', val);
-      window.location.href = u.toString();
-    });
-
-    input.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
-    input.focus();
+    const inp = document.getElementById('lp-input');
+    const btn = document.getElementById('lp-btn');
+    btn.addEventListener('click', () => { if (inp.value.trim()) navigate(inp.value.trim()); else inp.focus(); });
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') btn.click(); });
+    inp.focus();
   }
 
-  // ── render player ─────────────────────────────────────────
+  // ── PLAYER page ──────────────────────────────────────────
   function renderPlayer(url) {
-    const name  = fileName(url);
-    const ext   = fileExt(url) || (isAudio(url) ? 'audio' : 'video');
-    const audio = isAudio(url);
+    navInput.value = url;
+    const name    = fileName(url);
+    const title   = stripExt(name).replace(/%20/g, ' ').replace(/_/g, ' ');
+    const ext     = fileExt(url).toUpperCase() || 'VIDEO';
+    const audio   = isAudio(url);
+    const tag     = audio ? 'audio' : 'video';
+    const initial = title.trim().charAt(0).toUpperCase() || 'S';
 
-    // File type icon paths
-    const iconPath = audio
-      ? 'M9 18V5l12-2v13M9 18c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-2c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z'
-      : 'M15 10l4.553-2.276A1 1 0 0121 8.723v6.554a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z';
+    page.innerHTML = `
+      <!-- VIDEO COLUMN -->
+      <div class="video-col fadein">
 
-    app.innerHTML = `
-      <div class="player-wrap">
         <div class="player-shell">
-
-          <div class="file-info">
-            <div class="file-icon">
-              <svg viewBox="0 0 24 24"><path d="${iconPath}"/></svg>
-            </div>
-            <span class="file-name" title="${name}">${name}</span>
-            <span class="file-badge">${ext}</span>
-          </div>
-
-          <${audio ? 'audio' : 'video'} id="media-player" class="op-player__media" controls preload="metadata"
-            ${audio ? '' : 'playsinline'}>
+          <${tag} id="media-player" class="op-player__media" controls preload="metadata" ${audio ? '' : 'playsinline'}>
             <source src="${url}" />
-          </${audio ? 'audio' : 'video'}>
+          </${tag}>
+        </div>
 
-          <div class="dl-bar">
-            <span class="dl-label">Link</span>
-            <a class="dl-link" href="${url}" target="_blank" rel="noopener">${url.length > 60 ? url.slice(0, 60) + '…' : url}</a>
-            <button class="copy-btn" id="copy-btn">Copy</button>
+        <div class="video-info">
+          <div class="video-title" id="vid-title">${title}</div>
+
+          <div class="video-meta-row">
+            <span class="video-views" id="vid-meta">${ext} file</span>
+            <div class="action-btns">
+              <a class="action-btn red" href="${url}" download target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24"><path d="M5 20h14v-2H5v2zm7-18l-5 5h3v6h4v-6h3l-5-5z" transform="rotate(180,12,12)"/></svg>
+                Download
+              </a>
+              <button class="action-btn" id="copy-btn">
+                <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                Copy Link
+              </button>
+              <button class="action-btn" id="new-btn">
+                <svg viewBox="0 0 24 24"><path d="M19 11H7.83l4.88-4.88c.39-.39.39-1.03 0-1.42-.39-.39-1.02-.39-1.41 0l-6.59 6.59c-.39.39-.39 1.02 0 1.41l6.59 6.59c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L7.83 13H19c.55 0 1-.45 1-1s-.45-1-1-1z"/></svg>
+                New URL
+              </button>
+            </div>
           </div>
 
+          <div class="channel-row">
+            <div class="channel-avatar">${initial}</div>
+            <div>
+              <div class="channel-name">Direct Stream</div>
+              <div class="channel-subs">via StreamPlay</div>
+            </div>
+          </div>
+
+          <div class="desc-box">
+            <strong style="color:#f1f1f1;display:block;margin-bottom:6px;">Source URL</strong>
+            <span class="desc-url">${url}</span>
+          </div>
         </div>
       </div>
 
-      <button class="btn" id="new-btn" style="font-size:0.8rem;padding:10px 18px;opacity:0.7">
-        ← Play another URL
-      </button>
+      <!-- SIDEBAR -->
+      <div class="sidebar fadein">
+        <div class="sidebar-title">Tips</div>
+        <div class="tip-card">
+          <strong>📺 Streaming</strong>
+          Paste any direct .mp4, .mkv, .webm, .mp3 or .m3u8 link and it will play instantly in the browser.
+        </div>
+        <div class="tip-card">
+          <strong>⬇️ Download</strong>
+          Click the red Download button to save the file directly to your device.
+        </div>
+        <div class="tip-card">
+          <strong>📋 Copy Link</strong>
+          Copies the raw direct URL to your clipboard so you can share or open in VLC / MX Player.
+        </div>
+        <div class="tip-card">
+          <strong>🎵 Audio files</strong>
+          MP3, AAC, FLAC, OGG and other audio formats are fully supported too.
+        </div>
+      </div>
     `;
 
-    // Copy button
+    // copy button
     document.getElementById('copy-btn').addEventListener('click', function () {
-      copyText(url, this);
+      navigator.clipboard.writeText(url).then(() => {
+        this.textContent = '✓ Copied!';
+        this.classList.add('copied');
+        setTimeout(() => {
+          this.innerHTML = `<svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:var(--text);flex-shrink:0"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg> Copy Link`;
+          this.classList.remove('copied');
+        }, 2000);
+      });
     });
 
-    // New URL button
+    // new url button
     document.getElementById('new-btn').addEventListener('click', () => {
       const u = new URL(window.location.href);
       u.searchParams.delete('url');
       window.location.href = u.toString();
     });
 
-    // Init OpenPlayerJS
+    // OpenPlayerJS init
     try {
       const player = new OpenPlayer('media-player', {
         controls: {
           layers: {
             left:   ['play', 'time', 'volume'],
             middle: ['progress'],
-            right:  ['settings', 'fullscreen'],
+            right:  ['captions', 'settings', 'fullscreen'],
           }
         }
       });
       player.init();
-    } catch (e) {
-      console.warn('OpenPlayer init error:', e);
-      // fallback: native controls still work since we have `controls` attr
-    }
-  }
 
-  // ── render error ──────────────────────────────────────────
-  function renderError(msg) {
-    app.innerHTML = `
-      <div class="error-card">
-        <h2>⚠ Could not load media</h2>
-        <p>${msg}</p>
-      </div>
-      <button class="btn" id="back-btn" style="font-size:0.8rem;padding:10px 18px;opacity:0.7">← Try another URL</button>
-    `;
-    document.getElementById('back-btn').addEventListener('click', () => {
-      const u = new URL(window.location.href);
-      u.searchParams.delete('url');
-      window.location.href = u.toString();
-    });
+      // try to get duration for meta
+      const el = document.getElementById('media-player');
+      el.addEventListener('loadedmetadata', () => {
+        const dur = el.duration;
+        if (dur && isFinite(dur)) {
+          const m = Math.floor(dur / 60);
+          const s = Math.floor(dur % 60).toString().padStart(2, '0');
+          document.getElementById('vid-meta').textContent = `${ext} · ${m}:${s}`;
+        }
+      });
+    } catch(e) {
+      console.warn('OpenPlayer init:', e);
+    }
   }
 
   // ── router ────────────────────────────────────────────────
   const url = getParam('url');
-
   if (!url) {
-    renderForm();
+    renderLanding();
   } else {
-    try {
-      new URL(url); // validate
-      renderPlayer(url);
-    } catch {
-      renderError('Invalid URL. Please provide a valid direct media link.');
-    }
+    try { new URL(url); renderPlayer(url); }
+    catch { renderLanding(); }
   }
 
 })();
